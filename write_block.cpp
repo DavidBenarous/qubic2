@@ -4,6 +4,7 @@
  */
 
 #include "write_block.h"
+#include <iomanip>
 
 /*************************************************************************/
 
@@ -11,7 +12,7 @@
  * putting the clustered vectors together, identify common column
  */
 template <typename Block>
-void print_bc(FILE *fw, const std::unique_ptr<Block> &b, const int num) {
+void print_bc(std::ostream &fw, const std::unique_ptr<Block> &b, const int num) {
   /* block height (genes) */
   const int block_rows = b->genes.size();
   /* block_width (conditions) */
@@ -19,33 +20,35 @@ void print_bc(FILE *fw, const std::unique_ptr<Block> &b, const int num) {
   
   const int core_rows = b->core_rownum;  /* core height*/
   const int core_cols = b->core_colnum;  /* core width*/
-  fprintf(fw, "BC%03d\tS=%d\tEnrichment:%.2f\tRow=%d\tCol=%d\tCore_Row=%d\tCore_Col=%d\t\n", num, block_rows * block_cols,
-          b->score / 100.0,block_rows,block_cols,core_rows,core_cols);
+  fw << "BC" << std::setfill('0') << std::setw(3) << num << "\tS=" << block_rows * block_cols
+     << "\tEnrichment:" << std::fixed << std::setprecision(2) << b->score / 100.0
+     << "\tRow=" << block_rows << "\tCol=" << block_cols
+     << "\tCore_Row=" << core_rows << "\tCore_Col=" << core_cols << "\t\n";
 
-  fprintf(fw, " Genes [%d]: ", block_rows);
+  fw << " Genes [" << block_rows << "]: ";
   for (auto gene : b->genes)
-    fprintf(fw, "%s ", genes_n[gene]);
-  fprintf(fw, "\n");
+    fw << genes_n[gene] << " ";
+  fw << "\n";
 
-  fprintf(fw, " Conds [%d]: ", block_cols);
+  fw << " Conds [" << block_cols << "]: ";
   for (auto cond : b->conds)
-    fprintf(fw, "%s ", conds_n[cond]);
-  fprintf(fw, "\n");
+    fw << conds_n[cond] << " ";
+  fw << "\n";
   /* the complete block data output */
   int i = 0;
   for (auto gene : b->genes) {
-    fprintf(fw, "%10s:", genes_n[gene]);
+    fw << std::setw(10) << genes_n[gene] << ":";
     for (auto cond : b->conds) {
-      fprintf(fw, "\t%d", symbols[arr_c[gene][cond]]);
+      fw << "\t" << symbols[arr_c[gene][cond]];
     }
-    fputc('\n', fw);
+    fw << '\n';
     if (i == b->block_rows_pre - 1)
-      fputc('\n', fw);
+      fw << '\n';
     i++;
   }
 }
 
-template void print_bc<Block>(FILE *fw, const std::unique_ptr<Block> &b,
+template void print_bc<Block>(std::ostream &fw, const std::unique_ptr<Block> &b,
                               int num);
-template void print_bc<Block1>(FILE *fw, const std::unique_ptr<Block1> &b,
+template void print_bc<Block1>(std::ostream &fw, const std::unique_ptr<Block1> &b,
                                int num);

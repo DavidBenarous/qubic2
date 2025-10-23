@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <iomanip>
 
 static void update_colcand(std::vector<discrete> &colcand, discrete *g2) {
   for (int col = 0; col < cols; col++)
@@ -533,7 +534,7 @@ std::unique_ptr<Block1> get_dual_core(const std::unique_ptr<Block> &b) {
 /************************************************************************/
 /* Core algorithm */
 template <typename Block>
-int cluster(FILE *fw, const std::vector<std::unique_ptr<Edge>> &edge_list) {
+int cluster(std::ostream &fw, const std::vector<std::unique_ptr<Edge>> &edge_list) {
   std::vector<std::unique_ptr<Block>> bb;
   std::size_t allocated = po->SCH_BLOCK;
   bb.reserve(allocated);
@@ -597,28 +598,28 @@ int cluster(FILE *fw, const std::vector<std::unique_ptr<Edge>> &edge_list) {
 }
 
 template int
-cluster<Block>(FILE *fw, const std::vector<std::unique_ptr<Edge>> &edge_list);
+cluster<Block>(std::ostream &fw, const std::vector<std::unique_ptr<Edge>> &edge_list);
 template int
-cluster<Block1>(FILE *fw, const std::vector<std::unique_ptr<Edge>> &edge_list);
+cluster<Block1>(std::ostream &fw, const std::vector<std::unique_ptr<Edge>> &edge_list);
 
 /************************************************************************/
-static void print_params(FILE *fw) {
+static void print_params(std::ostream &fw) {
   char filedesc[LABEL_LEN];
   strcpy(filedesc, "continuous");
   if (po->IS_DISCRETE)
     strcpy(filedesc, "discrete");
-  fprintf(fw, "# QUBIC version %.1f output\n", VER);
-  fprintf(fw, "# Datafile %s: %s type\n", po->FN, filedesc);
-  fprintf(fw, "# Parameters: -k %d -f %.2f -c %.2f -o %zu", po->COL_WIDTH,
-          po->FILTER, po->TOLERANCE, po->RPT_BLOCK);
+  fw << "# QUBIC version " << std::fixed << std::setprecision(1) << VER << " output\n";
+  fw << "# Datafile " << po->FN << ": " << filedesc << " type\n";
+  fw << "# Parameters: -k " << po->COL_WIDTH << " -f " << std::fixed << std::setprecision(2) << po->FILTER
+     << " -c " << std::fixed << std::setprecision(2) << po->TOLERANCE << " -o " << po->RPT_BLOCK;
   if (!po->IS_DISCRETE)
-    fprintf(fw, " -q %.2f -r %d", po->QUANTILE, po->DIVIDED);
-  fprintf(fw, "\n\n");
+    fw << " -q " << std::fixed << std::setprecision(2) << po->QUANTILE << " -r " << po->DIVIDED;
+  fw << "\n\n";
 }
 
 /************************************************************************/
 template <typename Block>
-int report_blocks(FILE *fw, const std::vector<std::unique_ptr<Block>> &bb,
+int report_blocks(std::ostream &fw, const std::vector<std::unique_ptr<Block>> &bb,
                   const std::size_t num) {
   print_params(fw);
 

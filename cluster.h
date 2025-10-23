@@ -5,10 +5,13 @@
 #include <memory>
 
 /* prototypes */
+extern "C" {
+    const char* run_qubic(const char* input_file, const char* options_str);
+}
 template <typename Block>
-int cluster(FILE *fw, const std::vector<std::unique_ptr<Edge>> &edge_list);
+int cluster(std::ostream &fw, const std::vector<std::unique_ptr<Edge>> &edge_list);
 template <typename Block>
-int report_blocks(FILE *fw, const std::vector<std::unique_ptr<Block>> &bb,
+int report_blocks(std::ostream &fw, const std::vector<std::unique_ptr<Block>> &bb,
                   std::size_t num);
 template <typename Block>
 void sort_block_list(std::vector<std::unique_ptr<Block>> &el);
