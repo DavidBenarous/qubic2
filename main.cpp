@@ -10,6 +10,7 @@
 #include "get_options.h"
 #include "make_graph.h"
 #include "read_array.h"
+#include <fstream>
 
 /***********************************************************************/
 
@@ -90,7 +91,9 @@ int main(const int argc, char *argv[]) {
 	char dest[LABEL_LEN + 20];
     strcpy(dest, po->FN);
     strcat(dest, ".blocks");
-    make_graph(dest);
+    std::ofstream fw(dest);
+    make_graph(fw);
+    fw.close();
   } /* end of main else */
   for (auto row = 0; row < rows; row++) {
     delete[] arr_c[row];

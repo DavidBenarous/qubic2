@@ -140,9 +140,8 @@ continuous get_f_socre(const continuous a, const continuous b,
 
 /**************************************************************************/
 
-void make_graph(const char *fn) {
+void make_graph(std::ostream &fw) {
   std::vector<std::unique_ptr<Edge>> edge_list;
-  FILE *fw = mustOpen(fn, "w");
   if (po->COL_WIDTH == 2)
     po->COL_WIDTH = std::max(cols / 20, 2);
 
@@ -194,8 +193,7 @@ void make_graph(const char *fn) {
     n_blocks = cluster<Block1>(fw, edge_list);
   else
     n_blocks = cluster<Block>(fw, edge_list);
-  fclose(fw);
-  uglyTime("%d clusters are written to %s", n_blocks, fn);
+  fprintf(stderr, "%d clusters are written\n", n_blocks);
 }
 
 /***************************************************************************/

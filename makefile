@@ -7,10 +7,32 @@ OBJS=$(CXX_SRCS:.cpp=.o)
 LDFLAGS+=-lm -fopenmp
 CXXFLAGS+=-O3 -Wall -ansi -std=c++0x -fopenmp -DVER=$(VER)
 
+# Platform-specific settings
+ifeq ($(OS),Windows_NT)
+    # Windows settings
+    SHARED_LIB=qubic.dll
+    CXX=cl
+    CXXFLAGS=/O2 /EHsc /DVER=$(VER) /I.
+    LDFLAGS=
+    LINK_SHARED=/DLL /OUT:$(SHARED_LIB)
+else
+    # Linux/macOS settings
+    SHARED_LIB=qubic.so
+    CXX=g++
+    CXXFLAGS+=-fPIC
+    LINK_SHARED=-shared -o $(SHARED_LIB)
+endif
+
 all: $(PROGS)
 
 ${PROGS}: $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+shared: mathematica_wrapper.o $(OBJS)
+	$(CXX) $^ $(LINK_SHARED) $(LDFLAGS)
+
+mathematica_wrapper.o: mathematica_wrapper.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(PROGS)
@@ -19,6 +41,7 @@ clean:
 	rm -f data/*.chars
 	rm -f data/*.blocks
 	rm -f data/*.expansion
+	rm -f $(SHARED_LIB)
 
 dist:
 	$(MAKE) clean
