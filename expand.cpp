@@ -8,6 +8,7 @@
 #include "cluster.h"
 #include "read_array.h"
 #include "write_block.h"
+#include <fstream>
 
 discrete **another_arr_c;
 char **another_genes;
@@ -59,7 +60,7 @@ void read_and_solve_blocks(FILE *fb, const char *fn) {
   std::vector<discrete> colcand(another_cols);
   std::vector<bool> candidates(another_rows);
   std::unique_ptr<Block> b(new Block);
-  FILE *fo = mustOpen(fn, "w");
+  std::ofstream fo(fn);
 
   /* main course starts here */
   while (getline(&line, &n, fb) != -1) {
@@ -161,4 +162,5 @@ void read_and_solve_blocks(FILE *fb, const char *fn) {
       print_bc(fo, b, bnumber++);
     }
   }
+  fo.close();
 }
